@@ -7,16 +7,24 @@ from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QLabel, QFileDialog, QProgressBar, 
                              QMessageBox, QTabWidget, QListWidget, QListWidgetItem)
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QIcon  # <-- Añadido QIcon para manejar la imagen
 
 def asegurar_acceso_directo():
-    """Genera automáticamente el archivo .desktop con la ruta dinámica del script"""
+    """Genera automáticamente el archivo .desktop con rutas dinámicas para el script y el icono"""
     directorio_apps = os.path.expanduser("~/.local/share/applications")
     os.makedirs(directorio_apps, exist_ok=True)
     ruta_desktop = os.path.join(directorio_apps, "sidewinder.desktop")
     
-    # Extrae la ruta absoluta real donde se encuentra este script ejecutándose
+    # Extrae la ruta absoluta real del script y su directorio base
     ruta_script_actual = os.path.abspath(sys.argv[0])
+    directorio_base = os.path.dirname(ruta_script_actual)
+    
+    # Apunta directamente a tu nuevo icono en la carpeta assets
+    ruta_icono = os.path.join(directorio_base, "assets", "sidewinder.png")
+    
+    # Si por alguna razón la imagen no existe, usa un fallback genérico del sistema
+    if not os.path.exists(ruta_icono):
+        ruta_icono = "android-sdk"
     
     contenido_desktop = f"""[Desktop Entry]
 Version=1.0
@@ -24,13 +32,12 @@ Type=Application
 Name=Sidewinder
 Comment=Instala paquetes APK locales de forma aislada y headless
 Exec=python3 {ruta_script_actual}
-Icon=android-sdk
+Icon={ruta_icono}
 Categories=System;Utility;
 Terminal=false
 StartupNotify=true
 """
     
-    # Escribe o actualiza el archivo .desktop de forma silenciosa
     try:
         with open(ruta_desktop, "w", encoding="utf-8") as f:
             f.write(contenido_desktop)
@@ -158,6 +165,13 @@ class SidewinderApp(QWidget):
     def init_ui(self):
         self.setWindowTitle("Sidewinder APK Manager")
         self.setFixedSize(540, 400)
+        
+        # Cargar de forma dinámica el icono en la ventana de la aplicación
+        ruta_script_actual = os.path.abspath(sys.argv[0])
+        directorio_base = os.path.dirname(ruta_script_actual)
+        ruta_icono = os.path.join(directorio_base, "assets", "sidewinder.png")
+        if os.path.exists(ruta_icono):
+            self.setWindowIcon(QIcon(ruta_icono))
         
         self.setStyleSheet("""
             QWidget { background-color: #1e1e2e; color: #cdd6f4; font-family: 'Segoe UI', Arial, sans-serif; }
@@ -417,7 +431,7 @@ class SidewinderApp(QWidget):
 
 
 if __name__ == "__main__":
-    # Ejecuta la auto-instalación silenciosa del .desktop antes de lanzar la interfaz gráfica
+    # Ejecuta la auto-instalación del .desktop antes de lanzar la interfaz gráfica
     asegurar_acceso_directo()
     
     app = QApplication(sys.argv)
