@@ -1,4 +1,10 @@
 # Sidewinder APK Manager 🐍📦
+[![Linux Compatibility](https://img.shields.io/badge/OS-Arch%20Linux%20Based-blue?style=flat-for-the-badge&logo=arch-linux)](https://archlinux.org)
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-yellow?style=flat-for-the-badge&logo=python)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/UI-PyQt6-green?style=flat-for-the-badge&logo=qt)](https://www.qt.io/)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-for-the-badge)](https://opensource.org/licenses/MIT)
+
+---
 
 Sidewinder es una herramienta gráfica de automatización construida en **Python 3** y **PyQt6**. Su objetivo principal es facilitar la gestión, inyección y desinstalación aislada y *headless* de paquetes Android (`.apk`) sobre el entorno **Waydroid** en sistemas Linux.
 
