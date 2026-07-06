@@ -9,6 +9,35 @@ from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
 from PyQt6.QtGui import QFont
 
+def asegurar_acceso_directo():
+    """Genera automáticamente el archivo .desktop con la ruta dinámica del script"""
+    directorio_apps = os.path.expanduser("~/.local/share/applications")
+    os.makedirs(directorio_apps, exist_ok=True)
+    ruta_desktop = os.path.join(directorio_apps, "sidewinder.desktop")
+    
+    # Extrae la ruta absoluta real donde se encuentra este script ejecutándose
+    ruta_script_actual = os.path.abspath(sys.argv[0])
+    
+    contenido_desktop = f"""[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Sidewinder
+Comment=Instala paquetes APK locales de forma aislada y headless
+Exec=python3 {ruta_script_actual}
+Icon=android-sdk
+Categories=System;Utility;
+Terminal=false
+StartupNotify=true
+"""
+    
+    # Escribe o actualiza el archivo .desktop de forma silenciosa
+    try:
+        with open(ruta_desktop, "w", encoding="utf-8") as f:
+            f.write(contenido_desktop)
+    except Exception as e:
+        print(f"Aviso: No se pudo generar el acceso directo automáticamente: {e}")
+
+
 # HILO 1: Encargado exclusivamente de despertar y comprobar Waydroid al arrancar
 class WaydroidInitWorker(QThread):
     status_signal = pyqtSignal(str)
@@ -63,7 +92,6 @@ class WaydroidInitWorker(QThread):
                     self.finished_signal.emit(False, "El entorno de Android tardó demasiado en responder.")
                     return
 
-            self.progress_bar.setValue(100) if hasattr(self, 'progress_bar') else None
             self.finished_signal.emit(True, "Waydroid se encuentra activo y listo.")
 
         except Exception as e:
@@ -110,8 +138,6 @@ class WaydroidUninstallWorker(QThread):
     def run(self):
         try:
             self.status_signal.emit(f"Removiendo {self.app_name} (Pon tu contraseña)...")
-            
-            # Agregamos pkexec para otorgar el acceso root requerido por la acción shell del contenedor
             result = subprocess.run(["pkexec", "waydroid", "shell", "pm", "uninstall", self.package_name], capture_output=True, text=True)
             
             if result.returncode == 0 or "success" in result.stdout.lower():
@@ -391,6 +417,9 @@ class SidewinderApp(QWidget):
 
 
 if __name__ == "__main__":
+    # Ejecuta la auto-instalación silenciosa del .desktop antes de lanzar la interfaz gráfica
+    asegurar_acceso_directo()
+    
     app = QApplication(sys.argv)
     window = SidewinderApp()
     window.show()
