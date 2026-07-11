@@ -54,7 +54,7 @@ sudo pacman -S git python python-pyqt6 waydroid polkit
 **1. Clonar el repositorio**
 Abre tu terminal y descarga el proyecto directamente con este comando:
 ```Bash
-git clone [https://github.com/Slashdog29/Sidewinder.git](https://github.com/Slashdog29/Sidewinder.git) && cd Sidewinder
+git clone https://github.com/Slashdog29/Sidewinder.git && cd Sidewinder
 ```
 
 **2. Configurar Waydroid (Opcional)**
