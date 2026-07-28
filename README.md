@@ -7,7 +7,7 @@
 ---
 ## Novedades ##
 Se corrigio un error de que no funcionaba en otra distro que no sea Arch o sus variantes, se le implento una funcion que detecta la distro que estas usando.
-Si necesitas el fragmento donde detecta la distro es este
+Si necesitas el fragmento donde detecta la distro es este:
 ```bahs
 detect_distro() {
     if [ -f /etc/os-release ]; then
