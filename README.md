@@ -5,7 +5,52 @@
 [![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
+## Novedades ##
+Se corrigio un error de que no funcionaba en otra distro que no sea Arch o sus variantes, se le implento una funcion que detecta la distro que estas usando.
+Si necesitas el fragmento donde detecta la distro es este:
+```bahs
+detect_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRO_ID="$ID"
+        DISTRO_FAMILY="${ID_LIKE:-$ID}"
+    else
+        echo "Error: No se pudo determinar la distribución (/etc/os-release no existe)."
+        exit 1
+    fi
 
+    # Determinar gestor de paquetes según la familia o ID
+    case "$DISTRO_ID" in
+        arch|cachyos|manjaro|endeavouros|garuda)
+            PKG_MANAGER="pacman"
+            ;;
+        ubuntu|debian|pop|mint|elementary)
+            PKG_MANAGER="apt"
+            ;;
+        fedora|nobara|rhel|centos|rocky|almalinux)
+            PKG_MANAGER="dnf"
+            ;;
+        opensuse*|suse)
+            PKG_MANAGER="zypper"
+            ;;
+        *)
+            # Si es una distro derivada no listada explícitamente, evaluamos la familia
+            case "$DISTRO_FAMILY" in
+                *arch*) PKG_MANAGER="pacman" ;;
+                *debian*|*ubuntu*) PKG_MANAGER="apt" ;;
+                *fedora*|*rhel*) PKG_MANAGER="dnf" ;;
+                *suse*) PKG_MANAGER="zypper" ;;
+                *)
+                    echo "Distribución no soportada automáticamente: $DISTRO_ID"
+                    exit 1
+                    ;;
+            esac
+            ;;
+    esac
+}
+```
+
+---
 Sidewinder es una herramienta gráfica de automatización construida en **Python 3** y **PyQt6**. Su objetivo principal es facilitar la gestión, inyección y desinstalación aislada y *headless* de paquetes Android (`.apk`) sobre el entorno **Waydroid** en sistemas Linux.
 
 La aplicación resuelve los congelamientos de interfaz mediante el uso de subprocesos avanzados (`QThread`) y cuenta con elevación de privilegios integrada a través de `pkexec` para gestionar aplicaciones sin romper las políticas de seguridad de la shell de Android.
